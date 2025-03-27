@@ -1,0 +1,139 @@
+@{
+    ViewData["Title"] = "Human Body Model";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div id="container3D"></div>
+
+<!-- Image Upload Form -->
+<form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" id="imageUpload" name="image" accept="image/*">
+    <button type="button" id="uploadButton">Upload Image</button>
+</form>
+
+<!-- Display Uploaded Images -->
+<h3>Uploaded Images:</h3>
+<div id="uploadedImages">
+    <!-- Images will be displayed here -->
+</div>
+
+<script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.126.1/build/three.module.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.126.1/examples/jsm/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.126.1/examples/jsm/controls/OrbitControls.js'; // Import OrbitControls
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff); // Set the background to white
+    //const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Adjust the intensity
+    //scene.add(ambientLight);
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth * 2, window.innerHeight * 2);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true; // Enable shadows
+    document.getElementById('container3D').appendChild(renderer.domElement);
+
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+
+    const controls = new OrbitControls(camera, renderer.domElement); // Initialize OrbitControls
+
+    const loader = new GLTFLoader();
+    const modelPath = '@Url.Content("~/models/human_body/scene.gltf")';
+    loader.load(modelPath, function (gltf) {
+        const model = gltf.scene;
+        model.traverse(function (node) {
+            if (node.isMesh) {
+                node.castShadow = true;
+                node.receiveShadow = true;
+                const newMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xcccccc, // Gray color
+                    roughness: 0.5,
+                });
+
+                // Assign the new material to the mesh
+                node.material = newMaterial;
+            }
+        });
+        model.scale.set(1, 1, 1);
+        model.position.y = -2;
+
+        // Create the directional light
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(1, 1, 1);
+        directionalLight.castShadow = true;
+
+        // Add the directional light to the camera
+        camera.add(directionalLight);
+
+        scene.add(model);
+    }, undefined, function (error) {
+        console.error(error);
+    });
+
+    camera.position.z = 5;
+    scene.add(camera);
+
+    const animate = function () {
+        requestAnimationFrame(animate);
+
+        controls.update(); // Update OrbitControls
+
+        renderer.render(scene, camera);
+    };
+
+    animate();
+
+    document.getElementById('uploadButton').addEventListener('click', function () {
+        const imageUpload = document.getElementById('imageUpload');
+        const file = imageUpload.files[0];
+
+        if (file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/Image/UploadBodyImage', { // Adjust the URL to your controller action
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.imageUrl) {
+                    console.log('Image uploaded successfully!');
+
+                    // Create an image element
+                    const img = document.createElement('img');
+                    img.src = data.imageUrl;
+                    img.alt = 'Uploaded Image';
+                    img.style.maxWidth = '100px';
+                    img.style.maxHeight = '100px';
+                    img.draggable = true; // Make the image draggable
+                    img.classList.add('draggable-image'); // Add a class for styling
+
+                    // Add the image to the uploaded images container
+                    document.getElementById('uploadedImages').appendChild(img);
+
+                    // Add drag and drop listeners to the image
+                    img.addEventListener('dragstart', handleDragStart);
+                } else {
+                    console.error('Image upload failed.');
+                    // Handle error
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle network error
+            });
+        } else {
+            console.warn('No image selected.');
+        }
+    });
+
+    let draggedImage = null;
+
+    function handleDragStart(event) {
+        draggedImage = event.target;
+    }
+</script>
