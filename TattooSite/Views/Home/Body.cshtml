@@ -136,4 +136,40 @@
     function handleDragStart(event) {
         draggedImage = event.target;
     }
+
+    // Function to load images on page load
+    function loadImages() {
+        fetch('/Image/GetImages') // Adjust the URL to your controller action
+            .then(response => response.json())
+            .then(data => {
+                if (data && Array.isArray(data)) {
+                    data.forEach(imageUrl => {
+                        // Create an image element
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.alt = 'Uploaded Image';
+                        img.style.maxWidth = '100px';
+                        img.style.maxHeight = '100px';
+                        img.draggable = true; // Make the image draggable
+                        img.classList.add('draggable-image'); // Add a class for styling
+
+                        // Add the image to the uploaded images container
+                        document.getElementById('uploadedImages').appendChild(img);
+
+                        // Add drag and drop listeners to the image
+                        img.addEventListener('dragstart', handleDragStart);
+                    });
+                } else {
+                    console.error('Failed to load images.');
+                    // Handle error
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle network error
+            });
+    }
+
+    // Call the loadImages function when the page loads
+    window.addEventListener('load', loadImages);
 </script>
