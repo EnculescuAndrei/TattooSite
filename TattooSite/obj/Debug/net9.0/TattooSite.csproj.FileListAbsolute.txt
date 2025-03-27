@@ -4237,3 +4237,4 @@ C:\Users\VEVO\Desktop\Site\TattooSite\obj\Debug\net9.0\refint\TattooSite.dll
 C:\Users\VEVO\Desktop\Site\TattooSite\obj\Debug\net9.0\TattooSite.pdb
 C:\Users\VEVO\Desktop\Site\TattooSite\obj\Debug\net9.0\TattooSite.genruntimeconfig.cache
 C:\Users\VEVO\Desktop\Site\TattooSite\obj\Debug\net9.0\ref\TattooSite.dll
+C:\Users\VEVO\Desktop\Site\TattooSite\obj\Debug\net9.0\TattooSite.sourcelink.json

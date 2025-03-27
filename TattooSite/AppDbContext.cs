@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TattooSite.Models;
 
 namespace TattooSite.Data
 {
@@ -11,5 +12,6 @@ namespace TattooSite.Data
             : base(options)
         {
         }
+        public DbSet<UserImage> UserImages { get; set; }
     }
 }
