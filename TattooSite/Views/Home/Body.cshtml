@@ -45,6 +45,7 @@
     let model; // Declare model outside the load function
     loader.load(modelPath, function (gltf) {
         model = gltf.scene;
+        console.log('Model loaded:', model); // ADD THIS LINE
         model.traverse(function (node) {
             if (node.isMesh) {
                 node.castShadow = true;
@@ -70,6 +71,12 @@
         camera.add(directionalLight);
 
         scene.add(model);
+
+        // Add drag and drop listeners to the canvas
+        renderer.domElement.addEventListener('dragover', function (event) {
+            event.preventDefault();
+        });
+        renderer.domElement.addEventListener('drop', handleDrop);
     }, undefined, function (error) {
         console.error(error);
     });
@@ -138,7 +145,7 @@
         draggedImage = event.target;
     }
 
-    function handleDrop(event) {
+   function handleDrop(event) {
         event.preventDefault();
 
         const dropTarget = event.target;
@@ -154,6 +161,9 @@
             const normalizedX = (x / renderer.domElement.width) * 2 - 1;
             const normalizedY = -(y / renderer.domElement.height) * 2 + 1;
 
+            console.log('Normalized X:', normalizedX); // ADD THIS LINE
+            console.log('Normalized Y:', normalizedY); // ADD THIS LINE
+
             // Raycast to find the intersection point on the 3D model
             const raycaster = new THREE.Raycaster();
             const mouseVector = new THREE.Vector2(normalizedX, normalizedY);
@@ -161,8 +171,9 @@
 
             const intersects = raycaster.intersectObjects([model], true);
 
+            console.log('Intersects:', intersects); // ADDED
+
             if (intersects.length > 0) {
-                console.log('Intersects:', intersects);
                 const intersection = intersects[0];
                 const face = intersection.face;
                 const object = intersection.object;
@@ -177,28 +188,30 @@
     }
 
     function applyTexture(object, uv, imageSource) {
-        // Load the image as a texture
+        console.log('Applying texture to:', object); // ADDED
+        console.log('UV:', uv); // ADDED
+        console.log('Image Source:', imageSource); // ADDED
+
         const textureLoader = new THREE.TextureLoader();
         textureLoader.load(imageSource, function (texture) {
-            console.log('Texture:', texture);
-            // Create a new material with the texture
-            const material = new THREE.MeshBasicMaterial({ map: texture });
+            console.log('Texture loaded:', texture); // ADDED
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(1, 1);
 
-            // Apply the material to the object
+            const material = new THREE.MeshStandardMaterial({
+                map: texture,
+                roughness: 0.5,
+                metalness: 0.0,
+            });
+
             object.material = material;
-
-            // Update the UV mapping
+            object.material.needsUpdate = true;
             object.geometry.attributes.uv.needsUpdate = true;
-            console.log('Object:', object);
-            console.log('Material:', material);
+        }, undefined, function (error) {
+            console.error('An error occurred while loading the texture.', error);
         });
     }
-
-    // Add drag and drop listeners to the canvas
-    renderer.domElement.addEventListener('dragover', function (event) {
-        event.preventDefault();
-    });
-    renderer.domElement.addEventListener('drop', handleDrop);
 
     // Function to load images on page load
     function loadImages() {

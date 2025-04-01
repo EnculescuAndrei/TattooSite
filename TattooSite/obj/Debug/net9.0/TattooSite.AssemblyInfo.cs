@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TattooSite")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+015e92c2145331a16157355d7910876c7f17fcd1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05cbbaf6813d44003cc4248a08a88c0ddc2d5b53")]
 [assembly: System.Reflection.AssemblyProductAttribute("TattooSite")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TattooSite")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
